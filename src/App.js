@@ -1,23 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useRef} from "react";
+
+//Import Styles
+import "./style/app.scss";
+// Adding components
+import Player from './components/Player';
+import Song from './components/Song';
+import Library from './components/Library';
+import Nav from './components/Nav';
+//Import Util
+import data from './util';
 
 function App() {
+  //Ref
+  const audioRef = useRef(null);
+  //State
+const [songs, setSongs] = useState(data());
+const [currentSong, setCurrentSong] = useState(songs[0]);
+const [isPlaying, setIsPlaying] = useState(false);
+const [songInfo, setSongInfo] = useState({
+  currentTime:0,
+  duration:0,
+});
+const [libraryStatus, setLibraryStatus] = useState(false);
+const timeUpdateHandler = (e) => {
+  const current = e.target.currentTime;
+  const duration = e.target.duration;
+  setSongInfo({...songInfo, currentTime: current, duration})
+};
+
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Nav libraryStatus={libraryStatus} setLibraryStatus={setLibraryStatus}/>
+      <Song currentSong={currentSong}/>
+      <Player 
+      audioRef={audioRef}
+      isPlaying = {isPlaying} 
+      setIsPlaying = {setIsPlaying}
+      currentSong={currentSong}
+      setSongInfo={setSongInfo}
+      songInfo={songInfo}
+      />
+      <Library 
+      audioRef={audioRef} 
+      songs ={songs} 
+      setCurrentSong={setCurrentSong}
+      isPlaying={isPlaying}
+      setSongs={setSongs}
+      libraryStatus={libraryStatus}
+      />
+      <audio 
+         onTimeUpdate={timeUpdateHandler} 
+         onLoadedMetadata={timeUpdateHandler}         
+         ref={audioRef} 
+         src={currentSong.audio}
+         ></audio>
     </div>
   );
 }
